@@ -54,7 +54,7 @@ async function scrapeAll(browserInstance) {
     console.log("Could not resolve the browser instance => ", err);
   }
 }
-
+//
 const scraperObject = {
   url: "https://nftkey.app/collections/puffs/",
   async scraper(browser) {
