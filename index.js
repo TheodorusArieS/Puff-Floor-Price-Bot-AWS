@@ -8,7 +8,7 @@ setInterval(function () {
   console.log("ping");
 
   https.get("https://banana-crisp-70788.herokuapp.com/");
-}, 30000); // every 5 minutes (300000)
+}, 300000); // every 5 minutes (300000)
 //
 
 
