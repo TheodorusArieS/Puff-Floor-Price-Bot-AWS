@@ -1,13 +1,72 @@
 const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
+const { Client, Intents } = require('discord.js');
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const browserObject = require('./browser');
+require('dotenv').config();
 
 express()
+
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/', (req, res) => res.render('pages/index'))
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+  .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
+
+let floorPrice = 0;
+let browserInstance = browserObject.startBrowser();
+client.on("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+})
+
+setInterval(async () => {
+  const guildsID = client.guilds.cache.map(guild => guild.id);
+  console.log(guildsID);
+  const guild = await client.guilds.fetch(guildsID[0]);
+  // guild.me.setNickname(`FP: ${floorPrice} ONE`);
+  guild.me.setNickname(`from heroku with love`);
+  client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
+  scrapeAll(browserInstance);
+
+}, 60000)
+
+async function scrapeAll(browserInstance) {
+  let browser;
+  try {
+    browser = await browserInstance;
+    await scraperObject.scraper(browser);
+
+  }
+  catch (err) {
+    console.log("Could not resolve the browser instance => ", err);
+  }
+}
+
+const scraperObject = {
+  url: "https://nftkey.app/collections/puffs/",
+  async scraper(browser) {
+    let page = await browser.newPage();
+    console.log(`Navigating to ${this.url}...`);
+    await page.goto(this.url);
+    await page.waitForSelector('.css-rb6vmx', { setTimeout: 100000 });
+    await new Promise(r => setTimeout(r, 10000));
+
+    let urls = await page.$$eval('.css-19fmtb6', texts => {
+      texts = texts.map(text => text.textContent);
+      return texts;
+    });
+    // console.log("1 --- ", urls);
+    let fp = urls[5].split(" ")[0];
+    floorPrice = parseInt(fp);
+    console.log(floorPrice);
+
+  }
+}
+
+
+
+client.login(process.env.DISCORD_TOKEN);
 
 
