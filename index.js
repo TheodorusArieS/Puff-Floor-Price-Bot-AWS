@@ -2,6 +2,14 @@ const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 
+//pinging server
+const http = require("http");
+setInterval(function() {
+    http.get("https://banana-crisp-70788.herokuapp.com/");
+}, 300000); // every 5 minutes (300000)
+//
+
+
 // discord var
 const { Client, Intents } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
