@@ -29,14 +29,14 @@ express()
 
 // discord bot code
 let floorPrice = 0;
-let browserInstance = browserObject.startBrowser();
+
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 })
 //
 setInterval(async () => {
+  let browserInstance = browserObject.startBrowser();
   const guildsID = client.guilds.cache.map(guild => guild.id);
-  console.log(guildsID);
   const guild = await client.guilds.fetch(guildsID[0]);
   if (!isNaN(floorPrice)) {
     guild.me.setNickname(`FP: ${floorPrice} ONE`);
@@ -52,6 +52,7 @@ async function scrapeAll(browserInstance) {
   try {
     browser = await browserInstance;
     await scraperObject.scraper(browser);
+    await browser.close();
 
   }
   catch (err) {
@@ -75,6 +76,7 @@ const scraperObject = {
     let fp = urls[5].split(" ")[0];
     floorPrice = parseInt(fp);
     console.log(floorPrice);
+    // page.close();
 
   }
 }
