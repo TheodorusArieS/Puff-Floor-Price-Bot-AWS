@@ -37,7 +37,6 @@ setInterval(async () => {
   console.log(guildsID);
   const guild = await client.guilds.fetch(guildsID[0]);
   guild.me.setNickname(`FP: ${floorPrice} ONE`);
-  // guild.me.setNickname(`from heroku with love`);
   client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
   scrapeAll(browserInstance);
 
@@ -68,7 +67,6 @@ const scraperObject = {
       texts = texts.map(text => text.textContent);
       return texts;
     });
-    // console.log("1 --- ", urls);
     let fp = urls[5].split(" ")[0];
     floorPrice = parseInt(fp);
     console.log(floorPrice);
