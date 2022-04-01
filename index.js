@@ -4,9 +4,9 @@ const PORT = process.env.PORT || 5000
 
 //pinging server
 const https = require("https");
-setInterval(function() {
-  console.log("ping");  
-  
+setInterval(function () {
+  console.log("ping");
+
   https.get("https://banana-crisp-70788.herokuapp.com/");
 }, 30000); // every 5 minutes (300000)
 //
@@ -27,7 +27,7 @@ express()
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
-  // discord bot code
+// discord bot code
 let floorPrice = 0;
 let browserInstance = browserObject.startBrowser();
 client.on("ready", () => {
@@ -38,7 +38,10 @@ setInterval(async () => {
   const guildsID = client.guilds.cache.map(guild => guild.id);
   console.log(guildsID);
   const guild = await client.guilds.fetch(guildsID[0]);
-  guild.me.setNickname(`FP: ${floorPrice} ONE`);
+  if (!isNaN(floorPrice)) {
+    guild.me.setNickname(`FP: ${floorPrice} ONE`);
+  }
+
   client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
   scrapeAll(browserInstance);
 
