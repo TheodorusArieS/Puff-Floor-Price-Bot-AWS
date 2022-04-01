@@ -1,13 +1,15 @@
 const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
+
+// discord var
 const { Client, Intents } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const browserObject = require('./browser');
 require('dotenv').config();
+//
 
 express()
-
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
@@ -15,6 +17,7 @@ express()
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
+  // discord bot code
 let floorPrice = 0;
 let browserInstance = browserObject.startBrowser();
 client.on("ready", () => {
@@ -25,8 +28,8 @@ setInterval(async () => {
   const guildsID = client.guilds.cache.map(guild => guild.id);
   console.log(guildsID);
   const guild = await client.guilds.fetch(guildsID[0]);
-  // guild.me.setNickname(`FP: ${floorPrice} ONE`);
-  guild.me.setNickname(`from heroku with love`);
+  guild.me.setNickname(`FP: ${floorPrice} ONE`);
+  // guild.me.setNickname(`from heroku with love`);
   client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
   scrapeAll(browserInstance);
 
