@@ -23,7 +23,7 @@ let browserInstance = browserObject.startBrowser();
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 })
-
+//
 setInterval(async () => {
   const guildsID = client.guilds.cache.map(guild => guild.id);
   console.log(guildsID);
