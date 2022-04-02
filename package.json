@@ -1,7 +1,7 @@
 {
-  "name": "node-js-getting-started",
+  "name": "puffs-fp-bot",
   "version": "0.3.0",
-  "description": "A sample Node.js app using Express 4",
+  "description": "puffs FP bot for discord",
   "engines": {
     "node": "14.x"
   },
