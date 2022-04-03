@@ -8,7 +8,7 @@ setInterval(function () {
   console.log("ping");
 
   https.get("https://banana-crisp-70788.herokuapp.com/");
-}, 300000); // every 5 minutes (300000)
+}, 3300000); // every 55minutes (3300000)
 //
 
 
@@ -41,7 +41,6 @@ setInterval(async () => {
   if (!isNaN(floorPrice)) {
     guild.me.setNickname(`FP: ${floorPrice} ONE`);
   }
-
   client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
   scrapeAll(browserInstance);
 
