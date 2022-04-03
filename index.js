@@ -10,7 +10,7 @@ setInterval(function () {
   https.get("https://banana-crisp-70788.herokuapp.com/");
 }, 30 * 60 * 1000); // every 55minutes (3300000)
 //
-
+//
 
 // discord var
 const { Client, Intents } = require('discord.js');
