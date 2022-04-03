@@ -66,12 +66,13 @@ const scraperObject = {
     console.log(`Navigating to ${this.url}...`);
     await page.goto(this.url);
     await page.waitForSelector('.css-rb6vmx', { setTimeout: 100000 });
-    await new Promise(r => setTimeout(r, 10000));
+    await new Promise(r => setTimeout(r, 20000));
 
     let urls = await page.$$eval('.css-19fmtb6', texts => {
       texts = texts.map(text => text.textContent);
       return texts;
     });
+    console.log("URLS:",urls);
     let fp = urls[5].split(" ")[0];
     floorPrice = parseInt(fp);
     console.log(floorPrice);
