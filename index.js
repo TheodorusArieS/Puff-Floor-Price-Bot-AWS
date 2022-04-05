@@ -1,6 +1,9 @@
 const express = require('express')
 const path = require('path')
+const axios = require('axios');
 const PORT = process.env.PORT || 5000
+
+
 
 //pinging server
 const https = require("https");
@@ -23,28 +26,77 @@ express()
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
-  .get('/', (req, res) => res.render('pages/index'))
+  .get('/', async ({ query }, response) => {
+    const { code } = query;
+    console.log(`The access code is: ${code}`);
+    if (code) {
+      try {
+        const oauthResult = await axios('https://discord.com/api/oauth2/token', {
+          method: 'POST',
+          url: 'https://discord.com/api/oauth2/token',
+          headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+          },
+          data: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            code,
+            grant_type: 'authorization_code',
+            redirect_uri: `http://localhost:53134`,
+            scope: 'identify',
+          }).toString(),
+        });
+        const oauthData = oauthResult.data;
+
+        const userResult = await axios('https://discord.com/api/users/@me', {
+          headers: {
+            authorization: `${oauthData.token_type} ${oauthData.access_token}`,
+          },
+        });
+
+        console.log(userResult.data);
+        if (userResult.data) {
+          client.on("ready", () => {
+            console.log(`Logged in as ${client.user.tag}!`);
+            startScraping();
+          })
+        }
+
+      } catch (e) {
+        console.log(e);
+        console.log("ADA DI ERROR");
+      }
+    }
+    return response.sendFile('./views/pages/index.ejs', { root: '.' });
+  })
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
 // discord bot code
 let floorPrice = 0;
+//https://discord.com/api/oauth2/authorize?client_id=957892236564123688&permissions=201326592&redirect_uri=http%3A%2F%2Flocalhost%3A5000&response_type=code&scope=bot%20guilds
 
-client.on("ready", () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-})
+
+
+
+
+
+
 //
-setInterval(async () => {
-  let browserInstance = browserObject.startBrowser();
-  const guildsID = client.guilds.cache.map(guild => guild.id);
-  const guild = await client.guilds.fetch(guildsID[0]);
-  if (!isNaN(floorPrice)) {
-    guild.me.setNickname(`FP: ${floorPrice} ONE`);
-  }
-  client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
-  scrapeAll(browserInstance);
 
-}, 60000)
+function startScraping() {
+  setInterval(async () => {
+    let browserInstance = browserObject.startBrowser();
+    const guildsID = client.guilds.cache.map(guild => guild.id);
+    const guild = await client.guilds.fetch(guildsID[0]);
+    if (!isNaN(floorPrice)) {
+      guild.me.setNickname(`FP: ${floorPrice} ONE`);
+    }
+    client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
+    scrapeAll(browserInstance);
+
+  }, 60000)
+}
 
 async function scrapeAll(browserInstance) {
   let browser;
@@ -72,7 +124,7 @@ const scraperObject = {
       texts = texts.map(text => text.textContent);
       return texts;
     });
-    console.log("URLS:",urls);
+    console.log("URLS:", urls);
     let fp = urls[5].split(" ")[0];
     floorPrice = parseInt(fp);
     console.log(floorPrice);
