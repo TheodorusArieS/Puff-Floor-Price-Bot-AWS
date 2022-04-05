@@ -1,16 +1,16 @@
 const express = require('express')
 const path = require('path')
 const axios = require('axios');
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 53134
 
 
-
+const redirectUrl="https://banana-crisp-70788.herokuapp.com/";
 //pinging server
 const https = require("https");
 setInterval(function () {
   console.log("ping");
 
-  https.get("https://banana-crisp-70788.herokuapp.com/");
+  https.get(redirectUrl);
 }, 30 * 60 * 1000); // every 55minutes (3300000)
 //
 //
@@ -38,16 +38,18 @@ express()
             'content-type': 'application/x-www-form-urlencoded',
           },
           data: new URLSearchParams({
-            client_id: clientId,
-            client_secret: clientSecret,
+            client_id: process.env.CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET,
             code,
             grant_type: 'authorization_code',
-            redirect_uri: `http://localhost:53134`,
-            scope: 'identify',
+            // redirect_uri: `http://localhost:53134`,
+            redirect_uri: redirectUrl,
+            
+            scope: 'bot guild',
           }).toString(),
         });
         const oauthData = oauthResult.data;
-
+        console.log(oauthResult.data);
         const userResult = await axios('https://discord.com/api/users/@me', {
           headers: {
             authorization: `${oauthData.token_type} ${oauthData.access_token}`,
@@ -55,48 +57,45 @@ express()
         });
 
         console.log(userResult.data);
-        if (userResult.data) {
-          client.on("ready", () => {
-            console.log(`Logged in as ${client.user.tag}!`);
-            startScraping();
-          })
-        }
+
+        // handleRefreshToken(oauthData);
 
       } catch (e) {
         console.log(e);
         console.log("ADA DI ERROR");
       }
     }
-    return response.sendFile('./views/pages/index.ejs', { root: '.' });
+    return response.render('pages/index');
   })
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
 // discord bot code
 let floorPrice = 0;
-//https://discord.com/api/oauth2/authorize?client_id=957892236564123688&permissions=201326592&redirect_uri=http%3A%2F%2Flocalhost%3A5000&response_type=code&scope=bot%20guilds
-
-
-
-
-
-
 
 //
 
-function startScraping() {
-  setInterval(async () => {
-    let browserInstance = browserObject.startBrowser();
-    const guildsID = client.guilds.cache.map(guild => guild.id);
-    const guild = await client.guilds.fetch(guildsID[0]);
-    if (!isNaN(floorPrice)) {
-      guild.me.setNickname(`FP: ${floorPrice} ONE`);
-    }
-    client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
-    scrapeAll(browserInstance);
+client.on("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+})
 
-  }, 60000)
-}
+
+// function handleRefreshToken(data){
+
+// }
+
+setInterval(async () => {
+  let browserInstance = browserObject.startBrowser();
+  const guildsID = client.guilds.cache.map(guild => guild.id);
+  const guild = await client.guilds.fetch(guildsID[0]);
+  if (!isNaN(floorPrice)) {
+    guild.me.setNickname(`FP: ${floorPrice} ONE`);
+  }
+  client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
+  scrapeAll(browserInstance);
+
+}, 60000)
+
 
 async function scrapeAll(browserInstance) {
   let browser;
