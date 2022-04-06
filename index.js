@@ -25,7 +25,7 @@ express()
   .set('view engine', 'ejs')
   .get('/', async ({ query }, response) => {
     const { code } = query;
-    console.log(`The access code is: ${code}`);
+    // console.log(`The access code is: ${code}`);
     if (code) {
       try {
         const oauthResult = await axios('https://discord.com/api/oauth2/token', {
@@ -105,14 +105,18 @@ async function runScrap() {
   console.log("pinging :", redirectUrl);
   https.get(redirectUrl);
   try {
+    //open browser
     let browserInstance = browserObject.startBrowser();
+    scrapeAll(browserInstance);
+
+
+    //handle discord nickname
     const guildsID = client.guilds.cache.map(guild => guild.id);
     const guild = await client.guilds.fetch(guildsID[0]);
     if (!isNaN(floorPrice)) {
       guild.me.setNickname(`FP: ${floorPrice} ONE`);
     }
     client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
-    scrapeAll(browserInstance);
 
   }
   catch (e) {
@@ -130,8 +134,8 @@ async function scrapeAll(browserInstance) {
     await scraperObject.scraper(browser);
     await browser.close();
     console.log("Browser Closed");
-    await new Promise(r => setTimeout(r, 1 * 60 * 1000));
-    runScrap();
+    // await new Promise(r => setTimeout(r, 1 * 60 * 1000));
+    // runScrap();
 
   }
   catch (err) {

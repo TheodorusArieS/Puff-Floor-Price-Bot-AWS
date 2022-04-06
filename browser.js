@@ -8,7 +8,7 @@ async function startBrowser(){
 	        headless: true,
 	        args: [
 				"--disable-setuid-sandbox",
-				"--no-sandbox"
+				"--no-sandbox",
 			],
 	        'ignoreHTTPSErrors': true,
 			ignoreDefaultArgs: ['--disable-extensions'],
