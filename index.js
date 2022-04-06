@@ -110,11 +110,16 @@ async function runScrap() {
     scrapeAll(browserInstance);
     //handle discord nickname
     const guildsID = client.guilds.cache.map(guild => guild.id);
-    const guild = await client.guilds.fetch(guildsID[0]);
-    if (!isNaN(floorPrice)) {
-      guild.me.setNickname(`FP: ${floorPrice} ONE`);
+    console.log("GUILDS ID:", guildsID);
+
+    for (let i = 0; i < guildsID.length; i++) {
+      const guild = await client.guilds.fetch(guildsID[i]);
+      if (!isNaN(floorPrice)) {
+        guild.me.setNickname(`FP: ${floorPrice} ONE`);
+      }
+      client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
+
     }
-    client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
   }
   catch (e) {
     console.log("ERROR:", e)
@@ -133,7 +138,7 @@ async function scrapeAll(browserInstance) {
     await scraperObject.scraper(browser);
     await browser.close();
     console.log("Browser Closed");
-    
+
 
   }
   catch (err) {
