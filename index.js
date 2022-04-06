@@ -108,8 +108,6 @@ async function runScrap() {
     //open browser
     let browserInstance = browserObject.startBrowser();
     scrapeAll(browserInstance);
-
-
     //handle discord nickname
     const guildsID = client.guilds.cache.map(guild => guild.id);
     const guild = await client.guilds.fetch(guildsID[0]);
@@ -117,12 +115,13 @@ async function runScrap() {
       guild.me.setNickname(`FP: ${floorPrice} ONE`);
     }
     client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
-
   }
   catch (e) {
     console.log("ERROR:", e)
   }
 }
+
+
 
 
 
@@ -134,8 +133,7 @@ async function scrapeAll(browserInstance) {
     await scraperObject.scraper(browser);
     await browser.close();
     console.log("Browser Closed");
-    // await new Promise(r => setTimeout(r, 1 * 60 * 1000));
-    // runScrap();
+    
 
   }
   catch (err) {
@@ -161,7 +159,9 @@ const scraperObject = {
     let fp = urls[5].split(" ")[0];
     floorPrice = parseInt(fp);
     console.log(floorPrice);
-    // page.close();
+    await new Promise(r => setTimeout(r, 1 * 60 * 1000));
+    runScrap();
+
 
   }
 }
