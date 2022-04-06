@@ -2,24 +2,21 @@ const express = require('express')
 const path = require('path')
 const axios = require('axios');
 const PORT = process.env.PORT || 53134
-
-
-const redirectUrl="https://banana-crisp-70788.herokuapp.com/";
-//pinging server
 const https = require("https");
-setInterval(function () {
-  console.log("ping");
 
-  https.get(redirectUrl);
-}, 30 * 60 * 1000); // every 55minutes (3300000)
-//
-//
+
+const redirectUrl = "https://banana-crisp-70788.herokuapp.com/";
+
 
 // discord var
 const { Client, Intents } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const browserObject = require('./browser');
 require('dotenv').config();
+//
+
+//global variable
+let floorPrice = 0;
 //
 
 express()
@@ -44,7 +41,7 @@ express()
             grant_type: 'authorization_code',
             // redirect_uri: `http://localhost:53134`,
             redirect_uri: redirectUrl,
-            
+
             scope: 'bot guild',
           }).toString(),
         });
@@ -58,7 +55,7 @@ express()
 
         console.log(userResult.data);
 
-        // handleRefreshToken(oauthData);
+        handleRefreshToken(oauthData.refresh_token);
 
       } catch (e) {
         console.log(e);
@@ -70,31 +67,60 @@ express()
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
-// discord bot code
-let floorPrice = 0;
 
-//
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  runScrap();
 })
 
+// handle refresh token
+function handleRefreshToken(refreshToken) {
+  if (refreshToken) {
+    try {
+      setInterval(async () => {
+        const oauthResult = await axios('https://discord.com/api/oauth2/token', {
+          method: 'POST',
+          url: 'https://discord.com/api/oauth2/token',
+          headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+          },
+          data: new URLSearchParams({
+            client_id: process.env.CLIENT_ID,
+            client_secret: process.env.CLIENT_SECRET,
+            grant_type: 'refresh_token',
+          }).toString(),
+        });
+        console.log(oauthResult.data);
 
-// function handleRefreshToken(data){
-
-// }
-
-setInterval(async () => {
-  let browserInstance = browserObject.startBrowser();
-  const guildsID = client.guilds.cache.map(guild => guild.id);
-  const guild = await client.guilds.fetch(guildsID[0]);
-  if (!isNaN(floorPrice)) {
-    guild.me.setNickname(`FP: ${floorPrice} ONE`);
+      }, 3 * 60 * 1000);
+    }
+    catch (e) {
+      console.log("error refresh token:", e);
+    }
   }
-  client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
-  scrapeAll(browserInstance);
+}
 
-}, 60000)
+async function runScrap() {
+  console.log("pinging :", redirectUrl);
+  https.get(redirectUrl);
+  try {
+    let browserInstance = browserObject.startBrowser();
+    const guildsID = client.guilds.cache.map(guild => guild.id);
+    const guild = await client.guilds.fetch(guildsID[0]);
+    if (!isNaN(floorPrice)) {
+      guild.me.setNickname(`FP: ${floorPrice} ONE`);
+    }
+    client.user.setActivity(`Puff Floor`, { type: "WATCHING" });
+    scrapeAll(browserInstance);
+
+  }
+  catch (e) {
+    console.log("ERROR:", e)
+  }
+}
+
+
 
 
 async function scrapeAll(browserInstance) {
@@ -103,17 +129,21 @@ async function scrapeAll(browserInstance) {
     browser = await browserInstance;
     await scraperObject.scraper(browser);
     await browser.close();
+    console.log("Browser Closed");
+    await new Promise(r => setTimeout(r, 1 * 60 * 1000));
+    runScrap();
 
   }
   catch (err) {
     console.log("Could not resolve the browser instance => ", err);
   }
 }
-//
+
 const scraperObject = {
   url: "https://nftkey.app/collections/puffs/",
   async scraper(browser) {
     let page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(0);
     console.log(`Navigating to ${this.url}...`);
     await page.goto(this.url);
     await page.waitForSelector('.css-rb6vmx', { setTimeout: 100000 });
@@ -131,8 +161,6 @@ const scraperObject = {
 
   }
 }
-
-
 
 client.login(process.env.DISCORD_TOKEN);
 
