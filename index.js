@@ -23,47 +23,46 @@ express()
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
-  .get('/', async ({ query }, response) => {
-    const { code } = query;
-    // console.log(`The access code is: ${code}`);
-    if (code) {
-      try {
-        const oauthResult = await axios('https://discord.com/api/oauth2/token', {
-          method: 'POST',
-          url: 'https://discord.com/api/oauth2/token',
-          headers: {
-            'content-type': 'application/x-www-form-urlencoded',
-          },
-          data: new URLSearchParams({
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET,
-            code,
-            grant_type: 'authorization_code',
-            // redirect_uri: `http://localhost:53134`,
-            redirect_uri: redirectUrl,
+  // .get('/', async ({ query }, response) => {
+  //   const { code } = query;
+  //   if (code) {
+  //     try {
+  //       const oauthResult = await axios('https://discord.com/api/oauth2/token', {
+  //         method: 'POST',
+  //         url: 'https://discord.com/api/oauth2/token',
+  //         headers: {
+  //           'content-type': 'application/x-www-form-urlencoded',
+  //         },
+  //         data: new URLSearchParams({
+  //           client_id: process.env.CLIENT_ID,
+  //           client_secret: process.env.CLIENT_SECRET,
+  //           code,
+  //           grant_type: 'authorization_code',
+  //           redirect_uri: redirectUrl,
 
-            scope: 'bot guild',
-          }).toString(),
-        });
-        const oauthData = oauthResult.data;
-        console.log(oauthResult.data);
-        const userResult = await axios('https://discord.com/api/users/@me', {
-          headers: {
-            authorization: `${oauthData.token_type} ${oauthData.access_token}`,
-          },
-        });
+  //           scope: 'bot guild',
+  //         }).toString(),
+  //       });
+  //       const oauthData = oauthResult.data;
+  //       console.log(oauthResult.data);
+  //       const userResult = await axios('https://discord.com/api/users/@me', {
+  //         headers: {
+  //           authorization: `${oauthData.token_type} ${oauthData.access_token}`,
+  //         },
+  //       });
 
-        console.log(userResult.data);
+  //       console.log(userResult.data);
 
-        handleRefreshToken(oauthData.refresh_token);
+  //       handleRefreshToken(oauthData.refresh_token);
 
-      } catch (e) {
-        console.log(e);
-        console.log("ADA DI ERROR");
-      }
-    }
-    return response.render('pages/index');
-  })
+  //     } catch (e) {
+  //       console.log(e);
+  //       console.log("ADA DI ERROR");
+  //     }
+  //   }
+  //   return response.render('pages/index');
+  // })
+  .get('/', (req, res) => res.render('pages/index'))
   .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
@@ -75,31 +74,31 @@ client.on("ready", () => {
 })
 
 // handle refresh token
-function handleRefreshToken(refreshToken) {
-  if (refreshToken) {
-    try {
-      setInterval(async () => {
-        const oauthResult = await axios('https://discord.com/api/oauth2/token', {
-          method: 'POST',
-          url: 'https://discord.com/api/oauth2/token',
-          headers: {
-            'content-type': 'application/x-www-form-urlencoded',
-          },
-          data: new URLSearchParams({
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET,
-            grant_type: 'refresh_token',
-          }).toString(),
-        });
-        console.log(oauthResult.data);
+// function handleRefreshToken(refreshToken) {
+//   if (refreshToken) {
+//     try {
+//       setInterval(async () => {
+//         const oauthResult = await axios('https://discord.com/api/oauth2/token', {
+//           method: 'POST',
+//           url: 'https://discord.com/api/oauth2/token',
+//           headers: {
+//             'content-type': 'application/x-www-form-urlencoded',
+//           },
+//           data: new URLSearchParams({
+//             client_id: process.env.CLIENT_ID,
+//             client_secret: process.env.CLIENT_SECRET,
+//             grant_type: 'refresh_token',
+//           }).toString(),
+//         });
+//         console.log(oauthResult.data);
 
-      }, 3 * 60 * 1000);
-    }
-    catch (e) {
-      console.log("error refresh token:", e);
-    }
-  }
-}
+//       }, 3 * 60 * 1000);
+//     }
+//     catch (e) {
+//       console.log("error refresh token:", e);
+//     }
+//   }
+// }
 
 async function runScrap() {
   console.log("pinging :", redirectUrl);
@@ -110,8 +109,7 @@ async function runScrap() {
     scrapeAll(browserInstance);
     //handle discord nickname
     const guildsID = client.guilds.cache.map(guild => guild.id);
-    console.log("GUILDS ID:", guildsID);
-
+  
     for (let i = 0; i < guildsID.length; i++) {
       const guild = await client.guilds.fetch(guildsID[i]);
       if (!isNaN(floorPrice)) {
@@ -138,8 +136,6 @@ async function scrapeAll(browserInstance) {
     await scraperObject.scraper(browser);
     await browser.close();
     console.log("Browser Closed");
-
-
   }
   catch (err) {
     console.log("Could not resolve the browser instance => ", err);
