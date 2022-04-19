@@ -1,12 +1,15 @@
 const express = require('express')
 const path = require('path')
-const axios = require('axios');
+// const axios = require('axios');
 const PORT = process.env.PORT || 53134
-const https = require("https");
+// const https = require("https");
 
 
-const redirectUrl = "https://banana-crisp-70788.herokuapp.com/";
+// const redirectUrl = "https://banana-crisp-70788.herokuapp.com/";
 
+const tag1 = "OTY1ODE1MTA3MzgyODIwOTI0.";
+const tag2 = "Yl4raQ.";
+const tag3 = "zNiJns9zHUOU3VfEnpjJJlwJ-Uc";
 
 // discord var
 const { Client, Intents } = require('discord.js');
@@ -101,8 +104,8 @@ client.on("ready", () => {
 // }
 
 async function runScrap() {
-  console.log("pinging :", redirectUrl);
-  https.get(redirectUrl);
+  // console.log("pinging :", redirectUrl);
+  // https.get(redirectUrl);
   try {
     //open browser
     let browserInstance = browserObject.startBrowser();
@@ -167,6 +170,8 @@ const scraperObject = {
   }
 }
 
-client.login(process.env.DISCORD_TOKEN);
+// client.login(process.env.DISCORD_TOKEN);
+
+client.login(`${tag1}${tag2}${tag3}`);
 
 

@@ -7,8 +7,13 @@ async function startBrowser(){
 	    browser = await puppeteer.launch({
 	        headless: true,
 	        args: [
-				"--disable-setuid-sandbox",
+				"--disable-gpu",
+				"--disable-dev-shm-usage",
 				"--no-sandbox",
+				"--disable-setuid-sandbox",
+				"--no-first-run",
+				"--no-zygote",
+				"--single-process",
 			],
 	        'ignoreHTTPSErrors': true,
 			ignoreDefaultArgs: ['--disable-extensions'],
